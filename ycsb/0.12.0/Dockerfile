@@ -1,13 +1,15 @@
-FROM debian:jessie
+FROM alpine:latest
 
 ENV YCSB_VERSION=0.12.0
 
-RUN apt-get update
-RUN apt-get install -y wget default-jdk python2.7
-RUN wget https://github.com/brianfrankcooper/YCSB/releases/download/$YCSB_VERSION/ycsb-$YCSB_VERSION.tar.gz -O /opt/ycsb.tar.gz
-RUN tar xfvz /opt/ycsb.tar.gz -C /opt/
-RUN mv /opt/ycsb-0.12.0/ /opt/ycsb/
-RUN rm -f /opt/ycsb.tar.gz
-RUN rm -rf /var/lib/apt/lists/*
+RUN apk --no-cache add curl python openjdk7-jre && \
+  curl -O --location  https://github.com/brianfrankcooper/YCSB/releases/download/${YCSB_VERSION}/ycsb-${YCSB_VERSION}.tar.gz && \
+  apk del curl && \
+  tar xfz ycsb-${YCSB_VERSION}.tar.gz && \
+  rm -rf ycsb-${YCSB_VERSION}.tar.gz && \
+  mkdir /opt && \
+  mv ycsb-${YCSB_VERSION} /opt/ycsb
 
-ENTRYPOINT ["python2.7", "/opt/ycsb/bin/ycsb"]
+ENTRYPOINT ["/opt/ycsb/bin/ycsb"]
+
+CMD ["--help"]
